@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hexagon.hrms.mapper.HrPositionMapper">
+
+	<select id="select" parameterType="int" resultType="HrPosition">
+		select hr_position_id, position_code, position_name, is_active
+		from hr_position
+		where hr_position_id = #{hrPositionId}
+	</select>
+</mapper>

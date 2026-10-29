@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hexagon.hrms.mapper.PermissionMapper">
+
+	<select id="selectByHrRoleId" parameterType="int" resultType="Permission">
+		select permission_id, permission_code, permission_name, permission_group
+		from permission
+		where permission_id in (
+			select permission_id from hr_role_permission where hr_role_id = #{hrRoleId}
+		)
+		order by permission_id
+	</select>
+</mapper>

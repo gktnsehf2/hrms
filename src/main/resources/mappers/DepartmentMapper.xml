@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hexagon.hrms.mapper.DepartmentMapper">
+
+	<resultMap type="Department" id="joinMap">
+		<id		column="department_id"		property="departmentId"/>
+		<result	column="department_code"	property="departmentCode"/>
+		<result	column="department_name"	property="departmentName"/>
+		<result	column="department_level"	property="departmentLevel"/>
+		<result	column="parent_id"			property="parentId"/>
+		<result	column="manager_id"			property="managerId"/>
+		<result	column="is_active"			property="isActive"/>
+		<!-- 상위 조직 (최상위면 parent_id 가 null 이라 조회하지 않음) -->
+		<association column="parent_id" property="parent" javaType="Department"
+			select="com.hexagon.hrms.mapper.DepartmentMapper.select"/>
+	</resultMap>
+
+	<select id="select" parameterType="int" resultMap="joinMap">
+		select department_id, department_code, department_name, department_level, parent_id, manager_id, is_active
+		from department
+		where department_id = #{departmentId}
+	</select>
+
+	<!-- 트리 계산용이라 상위 객체 없이 평평하게 -->
+	<select id="selectAll" resultType="Department">
+		select department_id, department_code, department_name, department_level, parent_id, manager_id, is_active
+		from department
+		where is_active = 1
+		order by department_id
+	</select>
+</mapper>

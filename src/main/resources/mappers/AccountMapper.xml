@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hexagon.hrms.mapper.AccountMapper">
+
+	<!-- account.emp_id 와 Account.emp(객체)는 이름이 달라 자동 매핑이 안 되므로 resultMap 으로 직접 매핑 -->
+	<resultMap type="Account" id="joinMap">
+		<id		column="account_id"		property="accountId"/>
+		<result	column="login_id"		property="loginId"/>
+		<result	column="password"		property="password"/>
+		<result	column="enabled"		property="enabled"/>
+		<result	column="fail_count"		property="failCount"/>
+		<result	column="is_locked"		property="isLocked"/>
+		<result	column="locked_at"		property="lockedAt"/>
+		<result	column="created_at"		property="createdAt"/>
+		<result	column="last_login_at"	property="lastLoginAt"/>
+
+		<!-- 계정 1 : 사원 1 -->
+		<association column="emp_id" property="emp" javaType="Emp"
+			select="com.hexagon.hrms.mapper.EmpMapper.select"/>
+
+		<!-- 계정 1 : Role N (각 Role 안에 권한 N) -->
+		<collection column="account_id" property="roles" javaType="java.util.List" ofType="HrRole"
+			select="com.hexagon.hrms.mapper.HrRoleMapper.selectByAccountId"/>
+	</resultMap>
+
+	<!-- 비밀번호는 조건에 넣지 않는다. 비교는 시큐리티의 PasswordEncoder 가 함 -->
+	<select id="selectByLoginId" parameterType="String" resultMap="joinMap">
+		select account_id, emp_id, login_id, password, enabled, fail_count, is_locked, locked_at, created_at, last_login_at
+		from account
+		where login_id = #{loginId}
+	</select>
+
+	<select id="selectSimpleByLoginId" parameterType="String" resultType="Account">
+		select account_id, login_id, enabled, fail_count, is_locked
+		from account
+		where login_id = #{loginId}
+	</select>
+
+	<update id="updateLoginSuccess" parameterType="int">
+		update account
+		set fail_count = 0, last_login_at = now()
+		where account_id = #{accountId}
+	</update>
+
+	<update id="updateLoginFail" parameterType="Account">
+		update account
+		set fail_count = #{failCount}
+		<if test="isLocked == 1">
+			, is_locked = 1, locked_at = now()
+		</if>
+		where account_id = #{accountId}
+	</update>
+</mapper>

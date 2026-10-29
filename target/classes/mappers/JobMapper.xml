@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hexagon.hrms.mapper.JobMapper">
+
+	<select id="select" parameterType="int" resultType="Job">
+		select job_id, job_code, job_name, job_level, is_active
+		from job
+		where job_id = #{jobId}
+	</select>
+
+	<select id="selectAll" resultType="Job">
+		select job_id, job_code, job_name, job_level, is_active
+		from job
+		where is_active = 1
+		order by job_level
+	</select>
+</mapper>

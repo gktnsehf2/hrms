@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hexagon.hrms.mapper.EmpMapper">
+
+	<!-- 사원 1 : 조직 1 / 직급 1 / 직책 0..1 → association 으로 부모 객체를 채움 -->
+	<resultMap type="Emp" id="joinMap">
+		<id		column="emp_id"			property="empId"/>
+		<result	column="emp_no"			property="empNo"/>
+		<result	column="ename"			property="ename"/>
+		<result	column="email"			property="email"/>
+		<result	column="phone"			property="phone"/>
+		<result	column="hiredate"		property="hiredate"/>
+		<result	column="resign_date"	property="resignDate"/>
+		<result	column="status"			property="status"/>
+
+		<association column="department_id" property="department" javaType="Department"
+			select="com.hexagon.hrms.mapper.DepartmentMapper.select"/>
+		<association column="job_id" property="job" javaType="Job"
+			select="com.hexagon.hrms.mapper.JobMapper.select"/>
+		<association column="hr_position_id" property="hrPosition" javaType="HrPosition"
+			select="com.hexagon.hrms.mapper.HrPositionMapper.select"/>
+	</resultMap>
+
+	<sql id="columns">
+		e.emp_id, e.emp_no, e.ename, e.email, e.phone, e.hiredate, e.resign_date,
+		e.department_id, e.job_id, e.hr_position_id, e.status
+	</sql>
+
+	<select id="select" parameterType="int" resultMap="joinMap">
+		select <include refid="columns"/>
+		from emp e
+		where e.emp_id = #{empId}
+	</select>
+
+	<!-- 검색 조건: 조회 범위(deptIds) + 이름/사번 + 직급 + 재직상태 -->
+	<sql id="searchWhere">
+		<where>
+			<if test="deptIds != null">
+				e.department_id in
+				<foreach collection="deptIds" item="deptId" open="(" separator="," close=")">#{deptId}</foreach>
+			</if>
+			<if test="search.keyword != null and search.keyword != ''">
+				and (e.ename like concat('%', #{search.keyword}, '%') or e.emp_no like concat('%', #{search.keyword}, '%'))
+			</if>
+			<if test="search.jobId != null and search.jobId > 0">
+				and e.job_id = #{search.jobId}
+			</if>
+			<if test="search.status != null and search.status != ''">
+				and e.status = #{search.status}
+			</if>
+		</where>
+	</sql>
+
+	<!-- 조직 순서 → 직급 높은 순 → 사번 순, 페이지 단위로 가져오기 -->
+	<select id="selectList" resultMap="joinMap">
+		select <include refid="columns"/>
+		from emp e
+		join job j on j.job_id = e.job_id
+		<include refid="searchWhere"/>
+		order by e.department_id, j.job_level desc, e.emp_id
+		limit #{pager.pageSize} offset #{pager.offset}
+	</select>
+
+	<select id="selectCount" resultType="int">
+		select count(*)
+		from emp e
+		<include refid="searchWhere"/>
+	</select>
+</mapper>

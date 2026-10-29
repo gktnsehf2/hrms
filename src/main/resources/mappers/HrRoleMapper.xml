@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hexagon.hrms.mapper.HrRoleMapper">
+
+	<!-- Role 1 : 권한 N 이므로 collection 으로 수집 -->
+	<resultMap type="HrRole" id="joinMap">
+		<id		column="hr_role_id"	property="hrRoleId"/>
+		<result	column="role_code"	property="roleCode"/>
+		<result	column="role_name"	property="roleName"/>
+		<result	column="is_active"	property="isActive"/>
+		<collection column="hr_role_id" property="permissions" javaType="java.util.List" ofType="Permission"
+			select="com.hexagon.hrms.mapper.PermissionMapper.selectByHrRoleId"/>
+	</resultMap>
+
+	<!-- 계정에 부여된 Role 중 활성화된 것만 -->
+	<select id="selectByAccountId" parameterType="int" resultMap="joinMap">
+		select hr_role_id, role_code, role_name, is_active
+		from hr_role
+		where is_active = 1
+		and hr_role_id in (
+			select hr_role_id from account_role where account_id = #{accountId}
+		)
+		order by hr_role_id
+	</select>
+</mapper>

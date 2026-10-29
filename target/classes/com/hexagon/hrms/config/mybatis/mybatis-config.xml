@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<!-- emp_no 컬럼 → empNo 필드 자동 매핑 -->
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+
+	<typeAliases>
+		<typeAlias type="com.hexagon.hrms.common.web.Pager"			alias="Pager"/>
+		<typeAlias type="com.hexagon.hrms.domain.Account"			alias="Account"/>
+		<typeAlias type="com.hexagon.hrms.domain.Emp"				alias="Emp"/>
+		<typeAlias type="com.hexagon.hrms.domain.Department"		alias="Department"/>
+		<typeAlias type="com.hexagon.hrms.domain.Job"				alias="Job"/>
+		<typeAlias type="com.hexagon.hrms.domain.HrPosition"		alias="HrPosition"/>
+		<typeAlias type="com.hexagon.hrms.domain.HrRole"			alias="HrRole"/>
+		<typeAlias type="com.hexagon.hrms.domain.Permission"		alias="Permission"/>
+		<typeAlias type="com.hexagon.hrms.domain.LoginHistory"		alias="LoginHistory"/>
+	</typeAliases>
+</configuration>
